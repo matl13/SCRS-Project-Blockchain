@@ -17,10 +17,10 @@ class FabCar extends Contract {
                 marca: 'Fiat',
                 modello: 'Croma',
                 classeAmbientale: 'EURO2',
-                dataImmatricolazione: '30/07/2019',
-                assicurazione: {compagnia: 'unipol', scadenza: '30/07/2021'},
+                dataImmatricolazione: '30-07-2019',
+                assicurazione: {compagnia: 'unipol', scadenza: '30-07-2021'},
                 kmPercorsi: 110000,
-                revisione: {meccanico: 'piero', data: '30/07/2020', km: '30000', esito: 1},
+                revisione: {meccanico: 'piero', data: '30-07-2020', km: '30000', esito: 1},
                 proprietario: 'Mario Rossi',
             },
         ];
@@ -34,7 +34,7 @@ class FabCar extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async queryCar(ctx, targa) {
+    async cercaAuto(ctx, targa) {
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
             throw new Error(`${targa} does not exist`);
@@ -43,8 +43,8 @@ class FabCar extends Contract {
         return carAsBytes.toString();
     }
 
-    async createCar(ctx, targa, telaio, marca, modello, classeAmbientale, dataImmatricolazione, proprietario) {
-        console.info('============= START : Create Car ===========');
+    async creaAuto(ctx, targa, telaio, marca, modello, classeAmbientale, dataImmatricolazione, kmPercorsi, proprietario) {
+        console.info('============= START : Crea Auto ===========');
 
         const car = {
             targa,
@@ -53,15 +53,16 @@ class FabCar extends Contract {
             modello,
             classeAmbientale,
             dataImmatricolazione,
+            kmPercorsi,
             proprietario,
             docType: 'car',
         };
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
-        console.info('============= END : Create Car ===========');
+        console.info('============= END : Crea Auto ===========');
     }
 
-    async queryAllCars(ctx) {
+    async mostraTutte(ctx) {
         const startKey = 'AA000AA';
         const endKey = 'ZZ999ZZ';
         const allResults = [];
@@ -80,18 +81,86 @@ class FabCar extends Contract {
         return JSON.stringify(allResults);
     }
 
-    async changeCarOwner(ctx, targa, newOwner) {
-        console.info('============= START : changeCarOwner ===========');
+    async cambiaProprietario(ctx, targa, newOwner) {
+        console.info('============= START : Cambia Proprietario ===========');
 
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
             throw new Error(`${targa} does not exist`);
         }
         const car = JSON.parse(carAsBytes.toString());
-        car.owner = newOwner;
+        car.proprietario = newOwner;
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
-        console.info('============= END : changeCarOwner ===========');
+        console.info('============= END : Cambia Proprietario ===========');
+    }
+
+    async rinnovaAssicurazione(ctx, targa, compagnia, scadenza) {
+        console.info('============= START : Rinnova Assicurazione ===========');
+
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} does not exist`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+        car.assicurazione = {compagnia, scadenza};
+
+        await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
+        console.info('============= END : Rinnova Assicurazione ===========');
+    }
+
+    async aggiungiRevisione(ctx, targa, meccanico, data, km, esito) {
+        console.info('============= START : Aggiungi Revisione ===========');
+
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} does not exist`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+        car.assicurazione = {meccanico, data, km, esito};
+        car.kmPercorsi = car.kmPercorsi + km;
+
+        await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
+        console.info('============= END : Aggiungi Revisione ===========');
+    }
+
+    async verificaAssicurazione(ctx, targa) {
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} does not exist`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+        
+        if (Date(car.assicurazione.scadenza) >= Date()) {
+            return "Veicolo Assicurato";
+        }
+            return "Veicolo Non Assicurato";
+    }
+
+    async verificaRevisione(ctx, targa) {
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} does not exist`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+        
+        const scadenzaRevisione = Date(car.revisione.data); 
+        scadenzaRevisione.setFullYear(scadenzaRevisione.getFullYear() + 2); // la revisione vale 2 anni
+
+        if ((scadenzaRevisione >= Date()) && car.revisione.esito == 1)  {
+            return "Revisione Valida";
+        }
+            return "Revisione Non Valida";
+    }
+
+    async verificaClasseAmbientale(ctx, targa) {
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} does not exist`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+        
+        return car.classeAmbientale;
     }
 
 }
