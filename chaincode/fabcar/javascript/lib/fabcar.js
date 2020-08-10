@@ -23,6 +23,18 @@ class FabCar extends Contract {
                 revisione: {meccanico: 'piero', data: '30-07-2020', km: '30000', esito: 1},
                 proprietario: 'Mario Rossi',
             },
+            {
+                targa: 'CE073RR',
+                telaio: 'Y674679',
+                marca: 'Volkswagen',
+                modello: 'Polo',
+                classeAmbientale: 'EURO4',
+                dataImmatricolazione: '22-12-2003',
+                assicurazione: {compagnia: 'unipol', scadenza: '18-11-2020'},
+                kmPercorsi: 130000,
+                revisione: {meccanico: 'daniele', data: '30-04-2019', km: '95000', esito: 1},
+                proprietario: 'Manuel Gallucci',
+            },
         ];
 
         for (let i = 0; i < cars.length; i++) {
