@@ -19,6 +19,23 @@ const fs = require('fs');
 const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
 const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
+/*
+**********
+Elenco API
+**********
+
+- mostraTutte
+- cercaAuto
+- creaAuto
+- cambiaProprietario
+- rinnovaAssicurazione
+- aggiungiRevisione
+- verificaAssicurazione
+- verificaRevisione
+- verificaClasseAmbientale
+
+*/
+
 app.get('/api/queryallcars', async function (req, res) {
     try {
 
@@ -51,6 +68,9 @@ app.get('/api/queryallcars', async function (req, res) {
         const result = await contract.evaluateTransaction('mostraTutte');
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
+
+        // Disconnect from the gateway.
+        await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
@@ -91,6 +111,9 @@ app.get('/api/query/:car_index', async function (req, res) {
         const result = await contract.evaluateTransaction('cercaAuto', req.params.car_index);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
+
+        // Disconnect from the gateway.
+        await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
@@ -133,10 +156,55 @@ app.post('/api/addcar/', async function (req, res) {
         console.log(`Transaction has been evaluated`);
         res.status(200).json({response: "Auto Creata"});
 
+        // Disconnect from the gateway.
+        await gateway.disconnect();
+
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
         process.exit(1);
     }
+})
+
+
+app.post('/api/changeowner/:car_index', async function (req, res) {
+    try {
+
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get('appUser');
+        if (!identity) {
+            console.log('An identity for the user "appUser" does not exist in the wallet');
+            console.log('Run the registerUser.js application before retrying');
+            return;
+        }
+
+        // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('fabcar');
+
+        // Submit the specified transaction.
+        await contract.submitTransaction('cambiaProprietario', req.params.car_index, req.body.owner);
+        console.log('Transaction has been submitted');
+        res.status(200).json({response: "Proprietario Aggiornato"});
+
+        // Disconnect from the gateway.
+        await gateway.disconnect();
+
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        process.exit(1);
+    }
+    	
 })
 
 /*
