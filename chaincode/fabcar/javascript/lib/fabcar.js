@@ -148,8 +148,8 @@ class FabCar extends Contract {
             throw new Error(`${targa} does not exist`);
         }
         const car = JSON.parse(carAsBytes.toString());
-        car.assicurazione = {meccanico, data, km, esito};
-        car.kmPercorsi = car.kmPercorsi + km;
+        car.revisione = {meccanico, data, km, esito};
+        car.kmPercorsi = parseInt(car.kmPercorsi, 10) + parseInt(km, 10);
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
         console.info('============= END : Aggiungi Revisione ===========');
