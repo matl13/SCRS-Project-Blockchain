@@ -4,6 +4,12 @@
 
 'use strict';
 
+/*
+
+    FORMATO DATA = mese-giorno-anno
+
+*/
+
 const { Contract } = require('fabric-contract-api');
 
 class FabCar extends Contract {
@@ -17,10 +23,10 @@ class FabCar extends Contract {
                 marca: 'Fiat',
                 modello: 'Croma',
                 classeAmbientale: 'EURO2',
-                dataImmatricolazione: '30-07-2019',
-                assicurazione: {compagnia: 'unipol', scadenza: '30-07-2021'},
+                dataImmatricolazione: '07-30-2019',
+                assicurazione: {compagnia: 'unipol', scadenza: '07-30-2021'},
                 kmPercorsi: 110000,
-                revisione: {meccanico: 'piero', data: '30-07-2020', km: '30000', esito: 1},
+                revisione: {meccanico: 'piero', data: '07-30-2020', km: '30000', esito: 1},
                 proprietario: 'Mario Rossi',
             },
             {
@@ -29,10 +35,10 @@ class FabCar extends Contract {
                 marca: 'Volkswagen',
                 modello: 'Polo',
                 classeAmbientale: 'EURO4',
-                dataImmatricolazione: '22-12-2003',
-                assicurazione: {compagnia: 'unipol', scadenza: '18-11-2020'},
+                dataImmatricolazione: '12-22-2003',
+                assicurazione: {compagnia: 'unipol', scadenza: '11-18-2020'},
                 kmPercorsi: 130000,
-                revisione: {meccanico: 'daniele', data: '30-04-2019', km: '95000', esito: 1},
+                revisione: {meccanico: 'daniele', data: '04-30-2019', km: '95000', esito: 1},
                 proprietario: 'Manuel Gallucci',
             },
         ];
@@ -161,8 +167,11 @@ class FabCar extends Contract {
             throw new Error(`${targa} does not exist`);
         }
         const car = JSON.parse(carAsBytes.toString());
+
+        var adesso = new Date();
+        var scadenzaAss = new Date(car.assicurazione.scadenza);
         
-        if (Date(car.assicurazione.scadenza) >= Date()) {
+        if (scadenzaAss >= adesso) {
             return "Veicolo Assicurato";
         }
             return "Veicolo Non Assicurato";
@@ -175,13 +184,23 @@ class FabCar extends Contract {
         }
         const car = JSON.parse(carAsBytes.toString());
         
-        const scadenzaRevisione = Date(car.revisione.data); 
-        scadenzaRevisione.setFullYear(scadenzaRevisione.getFullYear() + 2); // la revisione vale 2 anni
+        const dataRevisione = new Date(car.revisione.data); 
+        //var scad = new Date(car.revisione.data);
+        //scadenzaRevisione.setFullYear(scadenzaRevisione.getFullYear() + 2); // la revisione vale 2 anni
 
-        if ((scadenzaRevisione >= Date()) && car.revisione.esito == 1)  {
+
+        var year = dataRevisione.getFullYear();
+        var month = dataRevisione.getMonth();
+        var day = dataRevisione.getDate();
+        var scadenzaRevisione = new Date(year + 2, month, day);
+
+        var adesso = new Date();
+
+        if ((scadenzaRevisione >= adesso) && car.revisione.esito == "1")  {
             return "Revisione Valida";
-        }
+        }else{
             return "Revisione Non Valida";
+        }
     }
 
     async verificaClasseAmbientale(ctx, targa) {
