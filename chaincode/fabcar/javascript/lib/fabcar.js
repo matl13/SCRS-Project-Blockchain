@@ -61,25 +61,6 @@ class FabCar extends Contract {
         return carAsBytes.toString();
     }
 
-    async queryAllCars(ctx) {
-        const startKey = 'AA000AA';
-        const endKey = 'ZZ999ZZ';
-        const allResults = [];
-        for await (const {key, value} of ctx.stub.getStateByRange(startKey, endKey)) {
-            const strValue = Buffer.from(value).toString('utf8');
-            let record;
-            try {
-                record = JSON.parse(strValue);
-            } catch (err) {
-                console.log(err);
-                record = strValue;
-            }
-            allResults.push({ Key: key, Record: record });
-        }
-        console.info(allResults);
-        return JSON.stringify(allResults);
-    }
-
     async creaAuto(ctx, targa, telaio, marca, modello, classeAmbientale, dataImmatricolazione, kmPercorsi, proprietario) {
         console.info('============= START : Crea Auto ===========');
 
@@ -184,15 +165,11 @@ class FabCar extends Contract {
         }
         const car = JSON.parse(carAsBytes.toString());
         
-        const dataRevisione = new Date(car.revisione.data); 
-        //var scad = new Date(car.revisione.data);
-        //scadenzaRevisione.setFullYear(scadenzaRevisione.getFullYear() + 2); // la revisione vale 2 anni
-
-
+        const dataRevisione = new Date(car.revisione.data);
         var year = dataRevisione.getFullYear();
         var month = dataRevisione.getMonth();
         var day = dataRevisione.getDate();
-        var scadenzaRevisione = new Date(year + 2, month, day);
+        var scadenzaRevisione = new Date(year + 2, month, day);    // la revisione vale 2 anni
 
         var adesso = new Date();
 
