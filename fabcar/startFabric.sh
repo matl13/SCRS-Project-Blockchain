@@ -25,9 +25,10 @@ fi
 rm -rf javascript/wallet/*
 rm -rf java/wallet/*
 rm -rf typescript/wallet/*
+rm -rf wallet/*
 
 # launch network; create channel and join peer to channel
-pushd ../scrs-network
+pushd ../test-network
 ./network.sh down
 ./network.sh up createChannel -ca -s couchdb
 ./network.sh deployCC -l ${CC_SRC_LANGUAGE}
