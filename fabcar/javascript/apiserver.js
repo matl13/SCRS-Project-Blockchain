@@ -33,6 +33,10 @@ Elenco API
 - verificaAssicurazione
 - verificaRevisione
 - verificaClasseAmbientale
+- statisticheImmatricolazioni #TODO
+- cambioTarga #TODO
+- distruggiVeicolo #TODO
+- inserimentoInterventoTecnico #TODO
 
 */
 
