@@ -113,6 +113,20 @@ class FabCar extends Contract {
         console.info('============= END : Cambia Proprietario ===========');
     }
 
+    async cambiaTarga(ctx, targa, newPlate) {
+        console.info('============= START : Cambia Targa ===========');
+
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} does not exist`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+        car.targa = newPlate;
+
+        await ctx.stub.putState(newPlate, Buffer.from(JSON.stringify(car)));
+        console.info('============= END : Cambia Targa ===========');
+    }
+
     async rinnovaAssicurazione(ctx, targa, compagnia, scadenza) {
         console.info('============= START : Rinnova Assicurazione ===========');
 
