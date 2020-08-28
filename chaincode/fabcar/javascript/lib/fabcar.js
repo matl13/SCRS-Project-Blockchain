@@ -204,6 +204,53 @@ class FabCar extends Contract {
         return car.classeAmbientale;
     }
 
+    async queryValueHistory(ctx,targa){
+      
+        let iterator = await ctx.stub.getHistoryForKey(targa);
+      
+        let result = [];
+        let res = await iterator.next();
+        while (!res.done) {
+          if (res.value) {
+            console.info(`found state update with value: ${res.value.value.toString('utf8')}`);
+            const obj = JSON.parse(res.value.value.toString('utf8'));
+            result.push(obj);
+          }
+          res = await iterator.next();
+        }
+        await iterator.close();
+        return JSON.stringify(result);
+    }
+
+    async queryImmatricolazioni(ctx, mese, anno) {
+
+        var query = `{"selector": { 
+                                "dataImmatricolazione" :  {"$gte" : "${mese}-00-${anno}"}, 
+                                "dataImmatricolazione" :  {"$lte" : "${mese}-32-${anno}"}  
+                            } 
+                      }`
+        
+        //query = query.replace('{month}', mese);
+        //query = query.replace('{year}', anno);
+
+        let iterator = await ctx.stub.getQueryResult(query);
+        
+        let result = [];
+        let numero = 0;
+        let res = await iterator.next();
+        while (!res.done) {
+          if (res.value) {
+            console.info(`found state update with value: ${res.value.value.toString('utf8')}`);
+            //const obj = JSON.parse(res.value.value.toString('utf8'));
+            //result.push(obj);
+            numero = numero + 1;
+          }
+          res = await iterator.next();
+        }
+        await iterator.close();
+        return JSON.stringify(numero);
+    }      
+
 }
 
 module.exports = FabCar;

@@ -32,7 +32,8 @@ pushd ../scrs-network
 #./network.sh down
 #./network.sh up createChannel -ca -s couchdb
 #./network.sh deployCC -l ${CC_SRC_LANGUAGE}
-./byfn.sh up -l ${CC_SRC_LANGUAGE}
+./byfn.sh up -l ${CC_SRC_LANGUAGE} -s couchdb
+#./byfn.sh up -l ${CC_SRC_LANGUAGE}
 popd
 
 cat <<EOF
