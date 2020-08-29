@@ -45,15 +45,13 @@ async function main() {
 
 
         // Register the user, enroll the user, and import the new identity into the wallet.
-        const secret = await ca.register({
-            affiliation: 'org3.department1',
-            enrollmentID: 'appUser',
-            role: 'client'
-        }, adminUser);
-        const enrollment = await ca.enroll({
-            enrollmentID: 'appUser',
-            enrollmentSecret: secret
-        });
+        const affiliationService = ca.newAffiliationService();
+        await affiliationService.create({name: 'org3.department1', force: true}, adminUser);
+
+        const secret = await ca.register({ affiliation: 'org3.department1', enrollmentID: 'appUser', role: 'client' }, adminUser);
+
+        const enrollment = await ca.enroll({ enrollmentID: 'appUser', enrollmentSecret: secret });
+
         const x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
