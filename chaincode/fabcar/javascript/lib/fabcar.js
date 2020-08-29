@@ -6,7 +6,7 @@
 
 /*
 
-    FORMATO DATA = mese-giorno-anno
+    FORMATO DATA = anno-mese-giorno
 
 */
 
@@ -24,10 +24,10 @@ class FabCar extends Contract {
                 marca: 'FIAT',
                 modello: 'PUNTO',
                 classeAmbientale: 'EURO5',
-                dataImmatricolazione: '10-03-2006',
-                assicurazione: {compagnia: 'UNIPOL', scadenza: '10-09-2020'},
+                dataImmatricolazione: '2006-03-10',
+                assicurazione: {compagnia: 'UNIPOL', scadenza: '2020-09-10'},
                 kmPercorsi: 0,
-                revisione: {meccanico: 'DANIELE MARIANI', data: '10-03-2010', km: '1000', esito: '1'},
+                revisione: {meccanico: 'DANIELE MARIANI', data: '2010-03-10', km: '1000', esito: '1'},
                 proprietario: 'MONICA FERRANTE',
             },
             {
@@ -37,10 +37,10 @@ class FabCar extends Contract {
                 marca: 'VOLKSWAGEN',
                 modello: 'POLO',
                 classeAmbientale: 'EURO4',
-                dataImmatricolazione: '10-12-2002',
-                assicurazione: {compagnia: 'SEGUGIO', scadenza: '10-12-2020'},
+                dataImmatricolazione: '2002-12-10',
+                assicurazione: {compagnia: 'SEGUGIO', scadenza: '2020-12-10'},
                 kmPercorsi: 0,
-                revisione: {meccanico: 'DANIELE', data: '10-12-2006', km: '1000', esito: '1'},
+                revisione: {meccanico: 'DANIELE', data: '2006-12-10', km: '1000', esito: '1'},
                 proprietario: 'MANUEL GALLUCCI',
             },
         ];
@@ -280,10 +280,12 @@ class FabCar extends Contract {
     async queryImmatricolazioni(ctx, mese, anno) {
 
         var query = `{"selector": { 
-                                "dataImmatricolazione" :  {"$gte" : "${mese}-00-${anno}"}, 
-                                "dataImmatricolazione" :  {"$lte" : "${mese}-32-${anno}"}  
-                            } 
-                      }`
+                        "dataImmatricolazione" :  {
+                                "$gte" : "${anno}-${mese}-01",
+                                "$lte" : "${anno}-${mese}-31"
+                            }  
+                    } 
+              }`
 
         let iterator = await ctx.stub.getQueryResult(query);
         
@@ -293,8 +295,8 @@ class FabCar extends Contract {
         while (!res.done) {
           if (res.value) {
             console.info(`found state update with value: ${res.value.value.toString('utf8')}`);
-            //const obj = JSON.parse(res.value.value.toString('utf8'));
-            //result.push(obj);
+            const obj = JSON.parse(res.value.value.toString('utf8'));
+            result.push(obj);
             numero = numero + 1;
           }
           res = await iterator.next();
