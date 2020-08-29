@@ -122,7 +122,7 @@ app.get('/api/query/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        process.exit(1);
+        res.status(200).json({response: "Errore, controllare la targa e riprovare"});
     }
 });
 
@@ -153,20 +153,18 @@ app.post('/api/addcar/', async function (req, res) {
         // Get the contract from the network.
         const contract = network.getContract('fabcar');
 
-        // Submit the specified transaction.
-        // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
-        // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-        //creaAuto(ctx, targa, telaio, marca, modello, classeAmbientale, dataImmatricolazione, kmPercorsi, proprietario)
+        // Submit the specified transaction
         await contract.submitTransaction('creaAuto', req.body.targa, req.body.telaio, req.body.marca, req.body.modello, req.body.classeAmbientale, req.body.dataImmatricolazione, req.body.kmPercorsi, req.body.proprietario);
         console.log(`Transaction has been evaluated`);
-        res.status(200).json({response: "Auto Creata"});
+        res.status(200).json({response: "Auto creata"});
 
         // Disconnect from the gateway.
         await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Auto non creata"});
     }
 })
 
@@ -198,57 +196,17 @@ app.post('/api/changeowner/:car_index', async function (req, res) {
         const contract = network.getContract('fabcar');
 
         // Submit the specified transaction.
-        await contract.submitTransaction('cambiaProprietario', req.params.car_index, req.body.owner);
+        await contract.submitTransaction('cambiaProprietario', req.params.car_index, req.body.nuovo_proprietario);
         console.log('Transaction has been submitted');
-        res.status(200).json({response: "Proprietario Aggiornato"});
+        res.status(200).json({response: "Proprietario aggiornato"});
 
         // Disconnect from the gateway.
         await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
-    }
-    	
-})
-
-app.post('/api/changeplate/:car_index', async function (req, res) {
-    try {
-
-        // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
-
-        // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUser');
-        if (!identity) {
-            console.log('An identity for the user "appUser" does not exist in the wallet');
-            console.log('Run the registerUser.js application before retrying');
-            return;
-        }
-
-        // Create a new gateway for connecting to our peer node.
-        const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
-
-        // Get the network (channel) our contract is deployed to.
-        const network = await gateway.getNetwork('mychannel');
-
-        // Get the contract from the network.
-        const contract = network.getContract('fabcar');
-
-        // Submit the specified transaction.
-        await contract.submitTransaction('cambiaTarga', req.params.car_index, req.body.plate);
-        console.log('Transaction has been submitted');
-        res.status(200).json({response: "Targa Aggiornata"});
-
-        // Disconnect from the gateway.
-        await gateway.disconnect();
-
-    } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Proprietario non aggiornato"});
     }
     	
 })
@@ -283,14 +241,15 @@ app.post('/api/rinnovaassicurazione/:car_index', async function (req, res) {
         // Submit the specified transaction.
         await contract.submitTransaction('rinnovaAssicurazione', req.params.car_index, req.body.compagnia, req.body.scadenza);
         console.log('Transaction has been submitted');
-        res.status(200).json({response: "Assicurazione Rinnovata"});
+        res.status(200).json({response: "Assicurazione rinnovata"});
 
         // Disconnect from the gateway.
         await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Assicurazione non rinnovata"});
     }
     	
 })
@@ -325,14 +284,15 @@ app.post('/api/aggiungirevisione/:car_index', async function (req, res) {
         // Submit the specified transaction.
         await contract.submitTransaction('aggiungiRevisione', req.params.car_index, req.body.meccanico, req.body.data, req.body.km, req.body.esito);
         console.log('Transaction has been submitted');
-        res.status(200).json({response: "Revisione Aggiunta"});
+        res.status(200).json({response: "Revisione aggiunta"});
 
         // Disconnect from the gateway.
         await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Revisione non aggiunta"});
     }
     	
 })
@@ -376,7 +336,8 @@ app.get('/api/verificaassicurazione/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Informazione non disponibile"});
     }
 });
 
@@ -419,7 +380,8 @@ app.get('/api/verificarevisione/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        process.exit(1);
+       //process.exit(1);
+       res.status(200).json({response: "Informazione non disponibile"});
     }
 });
 
@@ -462,54 +424,9 @@ app.get('/api/verificaclasseambientale/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Errore, controllare la targa e riprovare"});
     }
 });
-
-/*
-app.put('/api/changeowner/:car_index', async function (req, res) {
-    try {
-
-        // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
-        const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
-
-        // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists('user1');
-        if (!userExists) {
-            console.log('An identity for the user "user1" does not exist in the wallet');
-            console.log('Run the registerUser.js application before retrying');
-            return;
-        }
-
-        // Create a new gateway for connecting to our peer node.
-        const gateway = new Gateway();
-        await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: false } });
-
-        // Get the network (channel) our contract is deployed to.
-        const network = await gateway.getNetwork('mychannel');
-
-        // Get the contract from the network.
-        const contract = network.getContract('fabcar');
-
-        // Submit the specified transaction.
-        // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
-        // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-        await contract.submitTransaction('changeCarOwner', req.params.car_index, req.body.owner);
-        console.log('Transaction has been submitted');
-        res.send('Transaction has been submitted');
-
-        // Disconnect from the gateway.
-        await gateway.disconnect();
-
-    } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
-    }
-    	
-})
-
-*/
 
 app.listen(8080);

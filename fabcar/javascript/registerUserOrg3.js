@@ -13,7 +13,7 @@ async function main() {
     try {
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '..', '..', 'scrs-network', 'connection-org3.json');
-        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'))
 
         // Create a new CA client for interacting with the CA.
         const caURL = ccp.certificateAuthorities['ca.org3.example.com'].url;
@@ -42,7 +42,7 @@ async function main() {
         // build a user object for authenticating with the CA
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
         const adminUser = await provider.getUserContext(adminIdentity, 'adminOrg3');
-            
+
 
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register({

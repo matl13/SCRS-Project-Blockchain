@@ -18,34 +18,35 @@ class FabCar extends Contract {
         console.info('============= START : Initialize Ledger ===========');
         const cars = [
             {
-                targa: 'CM234HB',
-                telaio: 'X123456',
-                marca: 'Fiat',
-                modello: 'Croma',
-                classeAmbientale: 'EURO2',
-                dataImmatricolazione: '07-30-2019',
-                assicurazione: {compagnia: 'unipol', scadenza: '07-30-2021'},
-                kmPercorsi: 110000,
-                revisione: {meccanico: 'piero', data: '07-30-2020', km: '30000', esito: 1},
-                proprietario: 'Mario Rossi',
+                targa: 'DB706JE',
+                attiva: '1',
+                telaio: 'A0001',
+                marca: 'FIAT',
+                modello: 'PUNTO',
+                classeAmbientale: 'EURO5',
+                dataImmatricolazione: '10-03-2006',
+                assicurazione: {compagnia: 'UNIPOL', scadenza: '10-09-2020'},
+                kmPercorsi: 0,
+                revisione: {meccanico: 'DANIELE MARIANI', data: '10-03-2010', km: '1000', esito: '1'},
+                proprietario: 'MONICA FERRANTE',
             },
             {
                 targa: 'CE073RR',
-                telaio: 'Y674679',
-                marca: 'Volkswagen',
-                modello: 'Polo',
+                attiva: '1',
+                telaio: 'A0002',
+                marca: 'VOLKSWAGEN',
+                modello: 'POLO',
                 classeAmbientale: 'EURO4',
-                dataImmatricolazione: '12-22-2003',
-                assicurazione: {compagnia: 'unipol', scadenza: '11-18-2020'},
-                kmPercorsi: 130000,
-                revisione: {meccanico: 'daniele', data: '04-30-2019', km: '95000', esito: 1},
-                proprietario: 'Manuel Gallucci',
+                dataImmatricolazione: '10-12-2002',
+                assicurazione: {compagnia: 'SEGUGIO', scadenza: '10-12-2020'},
+                kmPercorsi: 0,
+                revisione: {meccanico: 'DANIELE', data: '10-12-2006', km: '1000', esito: '1'},
+                proprietario: 'MANUEL GALLUCCI',
             },
         ];
 
         for (let i = 0; i < cars.length; i++) {
             let carStatus = cars[i].targa;
-            cars[i].docType = 'car';
             await ctx.stub.putState(carStatus, Buffer.from(JSON.stringify(cars[i])));
             console.info('Added <--> ', cars[i]);
         }
@@ -55,7 +56,7 @@ class FabCar extends Contract {
     async cercaAuto(ctx, targa) {
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
         console.log(carAsBytes.toString());
         return carAsBytes.toString();
@@ -63,21 +64,24 @@ class FabCar extends Contract {
 
     async creaAuto(ctx, targa, telaio, marca, modello, classeAmbientale, dataImmatricolazione, kmPercorsi, proprietario) {
         console.info('============= START : Crea Auto ===========');
-
-        const car = {
-            targa,
-            telaio,
-            marca,
-            modello,
-            classeAmbientale,
-            dataImmatricolazione,
-            kmPercorsi,
-            proprietario,
-            docType: 'car',
-        };
-
-        await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
-        console.info('============= END : Crea Auto ===========');
+        const carAsBytes = await ctx.stub.getState(targa);          // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {               // controlliamo che non esista già un auto con quella targa
+            const car = {
+                targa,
+                attiva: '1',
+                telaio,
+                marca,
+                modello,
+                classeAmbientale,
+                dataImmatricolazione,
+                kmPercorsi,
+                proprietario,
+            };
+            await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
+            console.info('============= END : Crea Auto ===========');
+        }else{
+            throw new Error(`${targa} gia esiste`);
+        }
     }
 
     async mostraTutte(ctx) {
@@ -99,32 +103,36 @@ class FabCar extends Contract {
         return JSON.stringify(allResults);
     }
 
-    async cambiaProprietario(ctx, targa, newOwner) {
+    async cambiaProprietario(ctx, targa, nuovo_proprietario) {
         console.info('============= START : Cambia Proprietario ===========');
 
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
         const car = JSON.parse(carAsBytes.toString());
-        car.proprietario = newOwner;
+        
+        if (car.attiva == '0') {
+            throw new Error(`Vietato modificare il proprietario di una targa inattiva`);
+        }
+        car.proprietario = nuovo_proprietario;
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
         console.info('============= END : Cambia Proprietario ===========');
     }
 
-    async cambiaTarga(ctx, targa, newPlate) {
-        console.info('============= START : Cambia Targa ===========');
+    async distruggiAuto(ctx, targa) {
+        console.info('============= START : Cambia Proprietario ===========');
 
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
         const car = JSON.parse(carAsBytes.toString());
-        car.targa = newPlate;
+        car.attiva = '0';
 
-        await ctx.stub.putState(newPlate, Buffer.from(JSON.stringify(car)));
-        console.info('============= END : Cambia Targa ===========');
+        await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
+        console.info('============= END : Cambia Proprietario ===========');
     }
 
     async rinnovaAssicurazione(ctx, targa, compagnia, scadenza) {
@@ -132,9 +140,15 @@ class FabCar extends Contract {
 
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
+        
         const car = JSON.parse(carAsBytes.toString());
+
+        if (car.attiva == '0') {
+            throw new Error(`Vietato rinnovare l'assicurazione di una targa inattiva`);
+        }
+
         car.assicurazione = {compagnia, scadenza};
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
@@ -146,22 +160,53 @@ class FabCar extends Contract {
 
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
         const car = JSON.parse(carAsBytes.toString());
+
+        if (car.attiva == '0') {
+            throw new Error(`Vietato aggiornare la revisione di una targa inattiva`);
+        }
+
         car.revisione = {meccanico, data, km, esito};
-        car.kmPercorsi = parseInt(car.kmPercorsi, 10) + parseInt(km, 10);
+        //car.kmPercorsi = parseInt(car.kmPercorsi, 10) + parseInt(km, 10);
+        car.kmPercorsi = parseInt(km, 10);
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
         console.info('============= END : Aggiungi Revisione ===========');
     }
 
+    async aggiungiInterventoTecnico(ctx, targa, meccanico, data, km, descrizione) {
+        console.info('============= START : Aggiungi Intervento Tecnico ===========');
+
+        const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
+        if (!carAsBytes || carAsBytes.length === 0) {
+            throw new Error(`${targa} non esiste`);
+        }
+        const car = JSON.parse(carAsBytes.toString());
+
+        if (car.attiva == '0') {
+            throw new Error(`Vietato aggiungere l'intervento tecnico di una targa inattiva`);
+        }
+
+        car.interventi_tecnici.push({meccanico, data, km, descrizione});
+        car.kmPercorsi = parseInt(km, 10);
+
+        await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
+        console.info('============= END : Aggiungi Intervento Tecnico ===========');
+    }
+
     async verificaAssicurazione(ctx, targa) {
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
+
         const car = JSON.parse(carAsBytes.toString());
+
+        if (car.attiva == '0') {
+            return "Targa inattiva"
+        }
 
         var adesso = new Date();
         var scadenzaAss = new Date(car.assicurazione.scadenza);
@@ -175,15 +220,23 @@ class FabCar extends Contract {
     async verificaRevisione(ctx, targa) {
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
         const car = JSON.parse(carAsBytes.toString());
+
+        if (car.attiva == '0') {
+            return "Targa inattiva"
+        }
         
-        const dataRevisione = new Date(car.revisione.data);
+        const dataRevisione = new Date(car.revisione.data); 
+        //var scad = new Date(car.revisione.data);
+        //scadenzaRevisione.setFullYear(scadenzaRevisione.getFullYear() + 2); // la revisione vale 2 anni
+
+
         var year = dataRevisione.getFullYear();
         var month = dataRevisione.getMonth();
         var day = dataRevisione.getDate();
-        var scadenzaRevisione = new Date(year + 2, month, day);    // la revisione vale 2 anni
+        var scadenzaRevisione = new Date(year + 2, month, day);
 
         var adesso = new Date();
 
@@ -197,10 +250,12 @@ class FabCar extends Contract {
     async verificaClasseAmbientale(ctx, targa) {
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
-            throw new Error(`${targa} does not exist`);
+            throw new Error(`${targa} non esiste`);
         }
         const car = JSON.parse(carAsBytes.toString());
-        
+        if (car.attiva == '0') {
+            return "Targa inattiva"
+        }
         return car.classeAmbientale;
     }
 
@@ -229,9 +284,6 @@ class FabCar extends Contract {
                                 "dataImmatricolazione" :  {"$lte" : "${mese}-32-${anno}"}  
                             } 
                       }`
-        
-        //query = query.replace('{month}', mese);
-        //query = query.replace('{year}', anno);
 
         let iterator = await ctx.stub.getQueryResult(query);
         

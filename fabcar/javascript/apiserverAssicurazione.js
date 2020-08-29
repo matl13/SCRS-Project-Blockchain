@@ -59,14 +59,15 @@ app.post('/api/rinnovaassicurazione/:car_index', async function (req, res) {
         // Submit the specified transaction.
         await contract.submitTransaction('rinnovaAssicurazione', req.params.car_index, req.body.compagnia, req.body.scadenza);
         console.log('Transaction has been submitted');
-        res.status(200).json({response: "Assicurazione Rinnovata"});
+        res.status(200).json({response: "Assicurazione rinnovata"});
 
         // Disconnect from the gateway.
         await gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
-        process.exit(1);
+        //process.exit(1);
+        res.status(200).json({response: "Assicurazione non rinnovata"});
     }
     	
 })
