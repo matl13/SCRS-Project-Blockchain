@@ -26,7 +26,7 @@ class FabCar extends Contract {
                 classeAmbientale: 'EURO5',
                 dataImmatricolazione: '2006-03-10',
                 assicurazione: {compagnia: 'UNIPOL', scadenza: '2020-09-10'},
-                kmPercorsi: 0,
+                kmPercorsi: 1000,
                 revisione: {meccanico: 'DANIELE MARIANI', data: '2010-03-10', km: '1000', esito: '1'},
                 proprietario: 'MONICA FERRANTE',
             },
@@ -39,7 +39,7 @@ class FabCar extends Contract {
                 classeAmbientale: 'EURO4',
                 dataImmatricolazione: '2002-12-10',
                 assicurazione: {compagnia: 'SEGUGIO', scadenza: '2020-12-10'},
-                kmPercorsi: 0,
+                kmPercorsi: 1000,
                 revisione: {meccanico: 'DANIELE', data: '2006-12-10', km: '1000', esito: '1'},
                 proprietario: 'MANUEL GALLUCCI',
             },
@@ -189,7 +189,8 @@ class FabCar extends Contract {
             throw new Error(`Vietato aggiungere l'intervento tecnico di una targa inattiva`);
         }
 
-        car.interventi_tecnici.push({meccanico, data, km, descrizione});
+        //car.interventi_tecnici.push({meccanico, data, km, descrizione});
+        car.ultimo_intervento_tecnico = {meccanico, data, km, descrizione};
         car.kmPercorsi = parseInt(km, 10);
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
@@ -241,7 +242,7 @@ class FabCar extends Contract {
         var adesso = new Date();
 
         if ((scadenzaRevisione >= adesso) && car.revisione.esito == "1")  {
-            return "Revisione Valida";
+            return "Revisione Valida: km registrati " + car.kmPercorsi;
         }else{
             return "Revisione Non Valida";
         }
