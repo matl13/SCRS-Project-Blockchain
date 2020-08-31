@@ -322,13 +322,20 @@ app.get('/api/storiaInterventiTecnici/:car_index', async function (req, res) {
 
         var obj = JSON.parse(result.toString('utf8'));
 
-        var interventi = "";
+        var interventi = "[";
         
+        var i = 0;
         for (var key in obj) {
             if (obj[key].ultimo_intervento_tecnico){
-                interventi = interventi + JSON.stringify(obj[key].ultimo_intervento_tecnico) + ", ";
+                if (i==0){
+                    interventi = interventi + JSON.stringify(obj[key].ultimo_intervento_tecnico)
+                }else{
+                    interventi = interventi + ", " + JSON.stringify(obj[key].ultimo_intervento_tecnico);
+                }
             }
+            i = i + 1;
         }
+        interventi = interventi + "]";
 
         console.log(`Transaction has been evaluated, result is: ${interventi.toString()}`);
         res.status(200).json({response: interventi.toString()});
