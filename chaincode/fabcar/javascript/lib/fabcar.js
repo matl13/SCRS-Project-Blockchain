@@ -122,7 +122,7 @@ class FabCar extends Contract {
     }
 
     async distruggiAuto(ctx, targa) {
-        console.info('============= START : Cambia Proprietario ===========');
+        console.info('============= START : Distruggi Auto ===========');
 
         const carAsBytes = await ctx.stub.getState(targa); // get the car from chaincode state
         if (!carAsBytes || carAsBytes.length === 0) {
@@ -132,7 +132,7 @@ class FabCar extends Contract {
         car.attiva = '0';
 
         await ctx.stub.putState(targa, Buffer.from(JSON.stringify(car)));
-        console.info('============= END : Cambia Proprietario ===========');
+        console.info('============= END : Distruggi Auto ===========');
     }
 
     async rinnovaAssicurazione(ctx, targa, compagnia, scadenza) {
