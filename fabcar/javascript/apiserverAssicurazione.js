@@ -11,12 +11,9 @@ app.use(function(req, res, next) {
 });
 
 // Setting for Hyperledger Fabric
-//const { FileSystemWallet, Gateway } = require('fabric-network');
 const { Gateway, Wallets } = require('fabric-network');
 const path = require('path');
 const fs = require('fs');
-//const ccpPath = path.resolve(__dirname, '.',  'connection-org1.json');
-//const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
 const ccpPath = path.resolve(__dirname, '..', '..', 'scrs-network', 'connection-org2.json');
 const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
@@ -39,16 +36,16 @@ app.post('/api/rinnovaassicurazione/:car_index', async function (req, res) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUserOrg2');
+        const identity = await wallet.get(req.body.user);
         if (!identity) {
-            console.log('An identity for the user "appUserOrg2" does not exist in the wallet');
+            console.log('An identity for the user ' + req.body.user + ' does not exist in the wallet');
             console.log('Run the registerUserOrg2.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUserOrg2', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccp, { wallet, identity: req.body.user, discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -66,7 +63,6 @@ app.post('/api/rinnovaassicurazione/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
-        //process.exit(1);
         res.status(200).json({response: "Assicurazione non rinnovata"});
     }
     	

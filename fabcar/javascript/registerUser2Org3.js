@@ -25,9 +25,9 @@ async function main() {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get('marianidaniele.org3');
+        const userIdentity = await wallet.get('ruscittogiuseppe.org3');
         if (userIdentity) {
-            console.log('An identity for the user "marianidaniele.org3" already exists in the wallet');
+            console.log('An identity for the user "ruscittogiuseppe.org3" already exists in the wallet');
             return;
         }
 
@@ -45,12 +45,12 @@ async function main() {
 
 
         // Register the user, enroll the user, and import the new identity into the wallet.
-        const affiliationService = ca.newAffiliationService();
-        await affiliationService.create({name: 'org3.department1', force: true}, adminUser);
+        //const affiliationService = ca.newAffiliationService();
+        //await affiliationService.create({name: 'org3.department1', force: true}, adminUser);
 
-        const secret = await ca.register({ affiliation: 'org3.department1', enrollmentID: 'marianidaniele.org3', role: 'client' }, adminUser);
+        const secret = await ca.register({ affiliation: 'org3.department1', enrollmentID: 'ruscittogiuseppe.org3', role: 'client' }, adminUser);
 
-        const enrollment = await ca.enroll({ enrollmentID: 'marianidaniele.org3', enrollmentSecret: secret });
+        const enrollment = await ca.enroll({ enrollmentID: 'ruscittogiuseppe.org3', enrollmentSecret: secret });
 
         const x509Identity = {
             credentials: {
@@ -60,11 +60,11 @@ async function main() {
             mspId: 'Org3MSP',
             type: 'X.509',
         };
-        await wallet.put('marianidaniele.org3', x509Identity);
-        console.log('Successfully registered and enrolled admin user "marianidaniele.org3" and imported it into the wallet');
+        await wallet.put('ruscittogiuseppe.org3', x509Identity);
+        console.log('Successfully registered and enrolled admin user "ruscittogiuseppe.org3" and imported it into the wallet');
 
     } catch (error) {
-        console.error(`Failed to register user "marianidaniele.org3": ${error}`);
+        console.error(`Failed to register user "ruscittogiuseppe.org3": ${error}`);
         process.exit(1);
     }
 }

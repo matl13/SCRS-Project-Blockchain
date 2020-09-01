@@ -25,9 +25,9 @@ async function main() {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get('unipol.org2');
+        const userIdentity = await wallet.get('genialloyd.org2');
         if (userIdentity) {
-            console.log('An identity for the user "unipol.org2" already exists in the wallet');
+            console.log('An identity for the user "appUserOrg2" already exists in the wallet');
             return;
         }
 
@@ -46,11 +46,11 @@ async function main() {
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register({
             affiliation: 'org2.department1',
-            enrollmentID: 'unipol.org2',
+            enrollmentID: 'genialloyd.org2',
             role: 'client'
         }, adminUser);
         const enrollment = await ca.enroll({
-            enrollmentID: 'unipol.org2',
+            enrollmentID: 'genialloyd.org2',
             enrollmentSecret: secret
         });
         const x509Identity = {
@@ -61,11 +61,11 @@ async function main() {
             mspId: 'Org2MSP',
             type: 'X.509',
         };
-        await wallet.put('unipol.org2', x509Identity);
-        console.log('Successfully registered and enrolled admin user "unipol.org2" and imported it into the wallet');
+        await wallet.put('genialloyd.org2', x509Identity);
+        console.log('Successfully registered and enrolled admin user "genialloyd.org2" and imported it into the wallet');
 
     } catch (error) {
-        console.error(`Failed to register user "unipol.org2": ${error}`);
+        console.error(`Failed to register user "genialloyd.org2": ${error}`);
         process.exit(1);
     }
 }

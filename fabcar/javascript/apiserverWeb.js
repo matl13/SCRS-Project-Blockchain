@@ -11,12 +11,9 @@ app.use(function(req, res, next) {
 });
 
 // Setting for Hyperledger Fabric
-//const { FileSystemWallet, Gateway } = require('fabric-network');
 const { Gateway, Wallets } = require('fabric-network');
 const path = require('path');
 const fs = require('fs');
-//const ccpPath = path.resolve(__dirname, '.',  'connection-org1.json');
-//const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
 const ccpPath = path.resolve(__dirname, '..', '..', 'scrs-network', 'connection-org1.json');
 const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
@@ -42,16 +39,16 @@ app.get('/api/verificaassicurazione/:car_index', async function (req, res) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUserWeb');
+        const identity = await wallet.get('web.org1');
         if (!identity) {
-            console.log('An identity for the user "appUserWeb" does not exist in the wallet');
+            console.log('An identity for the user "web.org1" does not exist in the wallet');
             console.log('Run the registerUserWeb.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUserWeb', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccp, { wallet, identity: 'web.org1', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -60,8 +57,6 @@ app.get('/api/verificaassicurazione/:car_index', async function (req, res) {
         const contract = network.getContract('fabcar');
 
         // Evaluate the specified transaction.
-        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
-        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
         const result = await contract.evaluateTransaction('verificaAssicurazione', req.params.car_index);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
@@ -71,7 +66,6 @@ app.get('/api/verificaassicurazione/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-       //process.exit(1);
        res.status(200).json({response: "Informazione non disponibile"});
     }
 });
@@ -86,16 +80,16 @@ app.get('/api/verificarevisione/:car_index', async function (req, res) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUserWeb');
+        const identity = await wallet.get('web.org1');
         if (!identity) {
-            console.log('An identity for the user "appUserWeb" does not exist in the wallet');
+            console.log('An identity for the user "web.org1" does not exist in the wallet');
             console.log('Run the registerUserWeb.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUserWeb', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccp, { wallet, identity: 'web.org1', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -104,8 +98,6 @@ app.get('/api/verificarevisione/:car_index', async function (req, res) {
         const contract = network.getContract('fabcar');
 
         // Evaluate the specified transaction.
-        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
-        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
         const result = await contract.evaluateTransaction('verificaRevisione', req.params.car_index);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
@@ -115,7 +107,6 @@ app.get('/api/verificarevisione/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        //process.exit(1);
         res.status(200).json({response: "Informazione non disponibile"});
     }
 });
@@ -130,16 +121,16 @@ app.get('/api/verificaclasseambientale/:car_index', async function (req, res) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUserWeb');
+        const identity = await wallet.get('web.org1');
         if (!identity) {
-            console.log('An identity for the user "appUserWeb" does not exist in the wallet');
+            console.log('An identity for the user "web.org1" does not exist in the wallet');
             console.log('Run the registerUseWeb.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUserWeb', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccp, { wallet, identity: 'web.org1', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -148,8 +139,6 @@ app.get('/api/verificaclasseambientale/:car_index', async function (req, res) {
         const contract = network.getContract('fabcar');
 
         // Evaluate the specified transaction.
-        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
-        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
         const result = await contract.evaluateTransaction('verificaClasseAmbientale', req.params.car_index);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
@@ -159,7 +148,6 @@ app.get('/api/verificaclasseambientale/:car_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        //process.exit(1);
         res.status(200).json({response: "Errore, controllare la targa e riprovare"});
     }
 });
@@ -174,16 +162,16 @@ app.post('/api/queryImmatricolazioni', async function (req, res) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUserWeb');
+        const identity = await wallet.get('web.org1');
         if (!identity) {
-            console.log('An identity for the user "appUserWeb" does not exist in the wallet');
+            console.log('An identity for the user "web.org1" does not exist in the wallet');
             console.log('Run the registerUseWeb.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUserWeb', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccp, { wallet, identity: 'web.org1', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -192,9 +180,6 @@ app.post('/api/queryImmatricolazioni', async function (req, res) {
         const contract = network.getContract('fabcar');
 
         // Evaluate the specified transaction.
-        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
-        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
-
         const result = await contract.evaluateTransaction('queryImmatricolazioni', req.body.mese, req.body.anno);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
@@ -204,7 +189,6 @@ app.post('/api/queryImmatricolazioni', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        //process.exit(1);
         res.status(200).json({response: "Informazione non disponibile"});
     }
 });

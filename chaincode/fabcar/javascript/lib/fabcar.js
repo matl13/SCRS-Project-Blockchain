@@ -43,6 +43,19 @@ class FabCar extends Contract {
                 revisione: {meccanico: 'DANIELE', data: '2006-12-10', km: '1000', esito: '1'},
                 proprietario: 'MANUEL GALLUCCI',
             },
+            {
+                targa: 'CM256VH',
+                attiva: '1',
+                telaio: 'B5672',
+                marca: 'FIAT',
+                modello: 'STILO',
+                classeAmbientale: 'EURO3',
+                dataImmatricolazione: '2003-03-10',
+                assicurazione: {compagnia: 'UNIPOL', scadenza: '2020-12-10'},
+                kmPercorsi: 300000,
+                revisione: {meccanico: 'MARCO', data: '2006-12-10', km: '1000', esito: '1'},
+                proprietario: 'ANTONIO FUOCO',
+            },
         ];
 
         for (let i = 0; i < cars.length; i++) {
